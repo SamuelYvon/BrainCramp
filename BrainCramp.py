@@ -23,6 +23,21 @@
 # This is a simple brainf*ck interpreter.
 # Samuel Yvon
 
+from enum import Enum
+
+
+class OpCode(Enum):
+    LEFT = "<",
+    RIGHT = ">",
+    PLUS = "+",
+    MINUS = "-",
+    READ = ".",
+    WRITE = ",",
+    LOOP_START = "[",
+    LOOP_END = "]",
+    RESET_TO_ZERO = "RESET_TO_ZERO"
+
+
 class BrainCramp:
     def __init__(self, code, ipt=""):
         self.argReader = 0
@@ -58,13 +73,13 @@ class BrainCramp:
         v = chr(b)
         return v
 
-    def move_left(self):
-        self.pointer = max(self.pointer - 1, 0)
+    def move_left(self, value):
+        self.pointer = max(self.pointer - value, 0)
 
-    def move_right(self):
-        if self.pointer > self.memory_length:
+    def move_right(self, value):
+        if (self.pointer + value) > self.memory_length:
             self.extend_memory(self.pointer)
-        self.pointer += 1
+        self.pointer += value
 
     def increment_at(self, address, val=1):
         self.write_at(address, self.read() + val)
@@ -84,7 +99,7 @@ class BrainCramp:
             self.memory.extend(extension)
             self.memory_length = len(self.memory)
 
-    def generate_jumps(self):
+    def generate_jumps(self, instruction_set = None):
         begin = []
         jumps = {}
         jumps_back = {}
@@ -114,9 +129,9 @@ class BrainCramp:
             c = self.code[ip]
 
             if c == ">":
-                self.move_right()
+                self.move_right(1)
             elif c == "<":
-                self.move_left()
+                self.move_left(1)
             elif c == "+":
                 self.increment()
             elif c == "-":
@@ -138,9 +153,28 @@ class BrainCramp:
 
         return str(output)
 
+    def run(self, instruction_set):
+        instruction_size = len(instruction_set)
+        ouput = ""
+        jumps, reverse_jump = self.generate_jumps(instruction_set)
+        position = 0
+
+        while position < instruction_size:
+            c = instruction_set[position]
+
+            if c.code == OpCode.LEFT:
+                self.move_left(c.arg)
+            elif c.code == OpCode.RIGHT:
+                self.move_right(c.arg)
+            elif c.code == OpCode.PLUS:
+                self.increment(c.arg)
+            elif c.code == OpCode.MINUS:
+                self.decrement(c.arg)
+            pass
+
 
 br = BrainCramp(
     "++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++.------.--------.>+.")
 r = br.interpret()
 print(r)
-#Prints Hello world!
+# Prints Hello world!
