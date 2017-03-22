@@ -31,11 +31,17 @@ class OpCode(Enum):
     RIGHT = ">",
     PLUS = "+",
     MINUS = "-",
-    READ = ".",
-    WRITE = ",",
+    READ = ",",
+    WRITE = ".",
     LOOP_START = "[",
     LOOP_END = "]",
     RESET_TO_ZERO = "RESET_TO_ZERO"
+
+
+class Instruction:
+    def __init__(self, op_code, arg):
+        self.code = op_code
+        self.arg = arg
 
 
 class BrainCramp:
@@ -99,17 +105,17 @@ class BrainCramp:
             self.memory.extend(extension)
             self.memory_length = len(self.memory)
 
-    def generate_jumps(self, instruction_set = None):
+    def generate_jumps(self, instruction_set):
         begin = []
         jumps = {}
         jumps_back = {}
-        for ip in range(len(self.code)):
-            c = self.code[ip]
-            if c == "]":
+        for ip in range(len(instruction_set)):
+            c = instruction_set[ip]
+            if c.code == OpCode.LOOP_END:
                 jumps[ip] = begin[len(begin) - 1]
                 jumps_back[begin[len(begin) - 1]] = ip
                 begin.pop()
-            elif c == "[":
+            elif c.code == OpCode.LOOP_START:
                 begin.append(ip)
         return jumps, jumps_back
 
@@ -120,42 +126,54 @@ class BrainCramp:
         self.code = self.code.replace("[+]", "F")
 
     def interpret(self):
-        self.optimize()
-        instruction_size = len(self.code)
-        output = ""
-        jumps, reverse_jump = self.generate_jumps()
+        # self.optimize()
+        ipt_len = len(self.code)
         ip = 0
-        while ip < instruction_size:
+        instruction_set = []
+
+        def incr_in_set(op_code):
+            instruction_set_len = len(instruction_set)
+            if instruction_set_len > 0:
+                latest = instruction_set[instruction_set_len - 1]
+                if latest.code == op_code and latest.arg is not None:
+                    latest.arg += 1
+                else:
+                    instruction_set.append(Instruction(op_code, 1))
+            else:
+                instruction_set.append(Instruction(op_code, 1))
+
+        while ip < ipt_len:
             c = self.code[ip]
 
             if c == ">":
-                self.move_right(1)
+                incr_in_set(OpCode.RIGHT)
             elif c == "<":
-                self.move_left(1)
+                incr_in_set(OpCode.LEFT)
             elif c == "+":
-                self.increment()
+                incr_in_set(OpCode.PLUS)
             elif c == "-":
-                self.decrement()
+                incr_in_set(OpCode.MINUS)
             elif c == ".":
-                output += self.read_ascii()
+                instruction_set.append(Instruction(OpCode.WRITE, None))
             elif c == ",":
-                self.write_arg()
+                instruction_set.append(Instruction(OpCode.READ, None))
             elif c == "[":
-                if self.read() == 0:
-                    ip = reverse_jump[ip]
+                instruction_set.append(Instruction(OpCode.LOOP_START, None))
             elif c == "]":
-                if self.read() > 0:
-                    ip = jumps[ip]
-            elif c == "F":
-                self.write(0)
+                instruction_set.append(Instruction(OpCode.LOOP_END, None))
+            else:
+                print("Unmapped: " + c)
 
             ip += 1
 
-        return str(output)
+        for c in instruction_set:
+            print("%s %s" % (c.code, str(c.arg)))
+
+        return self.run(instruction_set)
 
     def run(self, instruction_set):
         instruction_size = len(instruction_set)
-        ouput = ""
+        output = ""
         jumps, reverse_jump = self.generate_jumps(instruction_set)
         position = 0
 
@@ -170,11 +188,39 @@ class BrainCramp:
                 self.increment(c.arg)
             elif c.code == OpCode.MINUS:
                 self.decrement(c.arg)
-            pass
+            elif c.code == OpCode.RESET_TO_ZERO:
+                self.write(0)
+            elif c.code == OpCode.LOOP_START:
+                if self.read() == 0:
+                    position = reverse_jump[position]
+            elif c.code == OpCode.LOOP_END:
+                if self.read() > 0:
+                    position = jumps[position]
+            elif c.code == OpCode.READ:
+                self.write_arg()
+            elif c.code == OpCode.WRITE:
+                output += self.read_ascii()
+
+            position += 1
+        return str(output)
 
 
 br = BrainCramp(
     "++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++.------.--------.>+.")
+# +10
+# [
+# >
+# + 7
+# >
+# + 10
+# >
+# + 3
+# >
+# +
+# >
+# +
+# < 4
+
 r = br.interpret()
 print(r)
 # Prints Hello world!
