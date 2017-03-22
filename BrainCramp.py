@@ -108,16 +108,15 @@ class BrainCramp:
     def generate_jumps(self, instruction_set):
         begin = []
         jumps = {}
-        jumps_back = {}
         for ip in range(len(instruction_set)):
             c = instruction_set[ip]
             if c.code == OpCode.LOOP_END:
                 jumps[ip] = begin[len(begin) - 1]
-                jumps_back[begin[len(begin) - 1]] = ip
+                jumps[begin[len(begin) - 1]] = ip
                 begin.pop()
             elif c.code == OpCode.LOOP_START:
                 begin.append(ip)
-        return jumps, jumps_back
+        return jumps
 
     def optimize(self):
         # This will execute until the current value is 0
@@ -174,7 +173,7 @@ class BrainCramp:
     def run(self, instruction_set):
         instruction_size = len(instruction_set)
         output = ""
-        jumps, reverse_jump = self.generate_jumps(instruction_set)
+        jumps = self.generate_jumps(instruction_set)
         position = 0
 
         while position < instruction_size:
@@ -192,7 +191,7 @@ class BrainCramp:
                 self.write(0)
             elif c.code == OpCode.LOOP_START:
                 if self.read() == 0:
-                    position = reverse_jump[position]
+                    position = jumps[position]
             elif c.code == OpCode.LOOP_END:
                 if self.read() > 0:
                     position = jumps[position]
