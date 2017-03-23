@@ -65,7 +65,7 @@ class BrainCramp:
 
     def read_at(self, address):
         if address > self.memory_length - 1:
-            self.extend_memory()
+            self.extend_memory(address)
         return self.memory[address]
 
     def write_at(self, address, value):
@@ -83,8 +83,9 @@ class BrainCramp:
         self.pointer = max(self.pointer - value, 0)
 
     def move_right(self, value):
-        if (self.pointer + value) > self.memory_length:
-            self.extend_memory(self.pointer)
+        address = self.pointer + value
+        if address > self.memory_length - 1:
+            self.extend_memory(address)
         self.pointer += value
 
     def increment_at(self, address, val=1):
@@ -98,25 +99,25 @@ class BrainCramp:
 
     def extend_memory(self, pointer=16):
 
-        diff = pointer - self.memory_length
+        diff = pointer - (self.memory_length - 1)
 
-        if diff > 1:
+        if diff > 0:
             extension = [0 * i for i in range(diff)]
             self.memory.extend(extension)
             self.memory_length = len(self.memory)
 
-    def generate_jumps(self, instruction_set):
+    def build_jump_table(self, instruction_set):
         begin = []
-        jumps = {}
+        jump_table = {}
         for ip in range(len(instruction_set)):
             c = instruction_set[ip]
             if c.code == OpCode.LOOP_END:
-                jumps[ip] = begin[len(begin) - 1]
-                jumps[begin[len(begin) - 1]] = ip
+                jump_table[ip] = begin[len(begin) - 1]
+                jump_table[begin[len(begin) - 1]] = ip
                 begin.pop()
             elif c.code == OpCode.LOOP_START:
                 begin.append(ip)
-        return jumps
+        return jump_table
 
     def optimize(self):
         # This will execute until the current value is 0
@@ -130,36 +131,61 @@ class BrainCramp:
         ip = 0
         instruction_set = []
 
-        def incr_in_set(op_code):
+        def incr_in_set(op_code, default_arg):
             instruction_set_len = len(instruction_set)
             if instruction_set_len > 0:
                 latest = instruction_set[instruction_set_len - 1]
                 if latest.code == op_code and latest.arg is not None:
                     latest.arg += 1
                 else:
-                    instruction_set.append(Instruction(op_code, 1))
+                    instruction_set.append(Instruction(op_code, default_arg))
             else:
-                instruction_set.append(Instruction(op_code, 1))
+                instruction_set.append(Instruction(op_code, default_arg))
+
+        last_opening = -1
 
         while ip < ipt_len:
             c = self.code[ip]
 
             if c == ">":
-                incr_in_set(OpCode.RIGHT)
+                incr_in_set(OpCode.RIGHT, 1)
             elif c == "<":
-                incr_in_set(OpCode.LEFT)
+                incr_in_set(OpCode.LEFT, 1)
             elif c == "+":
-                incr_in_set(OpCode.PLUS)
+                incr_in_set(OpCode.PLUS, 1)
             elif c == "-":
-                incr_in_set(OpCode.MINUS)
+                incr_in_set(OpCode.MINUS, 1)
             elif c == ".":
                 instruction_set.append(Instruction(OpCode.WRITE, None))
             elif c == ",":
                 instruction_set.append(Instruction(OpCode.READ, None))
             elif c == "[":
+                last_opening = len(instruction_set)
                 instruction_set.append(Instruction(OpCode.LOOP_START, None))
             elif c == "]":
-                instruction_set.append(Instruction(OpCode.LOOP_END, None))
+
+                could_optimize = False
+
+                diff = len(instruction_set) - last_opening
+
+                if diff == 2:
+                    last_idx = len(instruction_set) - 1
+                    last_instr = instruction_set[last_idx]
+
+                    if last_instr.code == OpCode.PLUS or last_instr.code == OpCode.MINUS:
+                        del instruction_set[last_opening:]
+                        instruction_set.append(Instruction(OpCode.RESET_TO_ZERO, None))
+                        could_optimize = True
+
+                    pass  # this is a reduce or increment to 0
+                else:
+                    """
+                    Need to optimize for copy or multiplicate
+                    """
+                    pass
+
+                if not could_optimize:
+                    instruction_set.append(Instruction(OpCode.LOOP_END, None))
             else:
                 print("Unmapped: " + c)
 
@@ -171,9 +197,9 @@ class BrainCramp:
         return self.run(instruction_set)
 
     def run(self, instruction_set):
-        instruction_size = len(instruction_set)
         output = ""
-        jumps = self.generate_jumps(instruction_set)
+        jump_table = self.build_jump_table(instruction_set)
+        instruction_size = len(instruction_set)
         position = 0
 
         while position < instruction_size:
@@ -191,34 +217,23 @@ class BrainCramp:
                 self.write(0)
             elif c.code == OpCode.LOOP_START:
                 if self.read() == 0:
-                    position = jumps[position]
+                    position = jump_table[position]
             elif c.code == OpCode.LOOP_END:
                 if self.read() > 0:
-                    position = jumps[position]
+                    position = jump_table[position]
             elif c.code == OpCode.READ:
                 self.write_arg()
             elif c.code == OpCode.WRITE:
                 output += self.read_ascii()
+            elif c.code == OpCode.RESET_TO_ZERO:
+                self.write(0)
 
             position += 1
         return str(output)
 
 
 br = BrainCramp(
-    "++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++.------.--------.>+.")
-# +10
-# [
-# >
-# + 7
-# >
-# + 10
-# >
-# + 3
-# >
-# +
-# >
-# +
-# < 4
+    "++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++.------.--------.>+.>.")
 
 r = br.interpret()
 print(r)
