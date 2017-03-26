@@ -52,7 +52,9 @@ class Instruction:
 
 
 class BrainCramp:
-    def __init__(self, code, ipt=""):
+    def __init__(self, code, ipt="", verbose=False, debug=False):
+        self.verbose = verbose
+        self.debug = debug
         self.argReader = 0
         self.pointer = 0
         self.code = code
@@ -62,7 +64,10 @@ class BrainCramp:
         self.extend_memory()
         # optimisation vars
         self.move_right_val = 0
+        self.last_right = 0
         self.left_blocks = 0
+        self.last_left = 0
+        self.last_dir = ""
         self.can_op = True
 
     def write_arg(self):
@@ -111,13 +116,15 @@ class BrainCramp:
     def extend_memory(self, pointer=16):
 
         diff = pointer - (self.memory_length - 1)
+        size = diff * 4 + 16
 
         if diff > 0:
-            extension = [0 * i for i in range(diff)]
+            extension = [0 * i for i in range(size)]
             self.memory.extend(extension)
             self.memory_length = len(self.memory)
 
-    def build_jump_table(self, instruction_set):
+    @staticmethod
+    def build_jump_table(instruction_set):
         begin = []
         jump_table = {}
         for ip in range(len(instruction_set)):
@@ -184,9 +191,7 @@ class BrainCramp:
             elif c == "[":
                 last_opening = len(instruction_set)
                 # we reset the numbers of right movements since we cancel the last optimisation
-                self.move_right_val = 0
-                self.can_op = True
-                self.left_blocks = 0
+                self._reset_optimisation_vars()
                 instruction_set.append(Instruction(OpCode.LOOP_START, None))
             elif c == "]":
 
@@ -205,10 +210,7 @@ class BrainCramp:
                             could_optimize = True
 
                         pass  # this is a reduce or increment to 0
-                    # ToDo : the line self.last_left > self.last_right is not really the trick here...
-                    # ToDo : we don't want sets of < or > that inter-cross each other, but we don't mind
-                    # ToDo : >>><<<< or <<<<>>>>
-                    elif self.can_op and self.last_left > self.last_right:
+                    elif self.can_op:
                         """
                         Detecting copy or multiplication sounds a little tricky...
                         Structures like ->(x)+>(x)+<<
@@ -225,14 +227,18 @@ class BrainCramp:
                         """
 
                         left_blocks = []
+                        right_blocks = []
 
                         for instruc in loop_block:
                             if instruc.code == OpCode.LEFT:
                                 left_blocks.append(instruc)
-                        if len(left_blocks) == 1:
+                            elif instruc.code == OpCode.RIGHT:
+                                right_blocks.append(instruc)
+
+                        if len(left_blocks) > 0 and len(right_blocks) > 0:
                             only_left = left_blocks[0]
                             if only_left.arg == self.move_right_val:
-                                if loop_block[-1:][0].code == OpCode.MINUS or loop_block[:-1][0].code == OpCode.MINUS:
+                                if True:  # loop_block[-1:][0].code == OpCode.MINUS or loop_block[:-1][0].code == OpCode.MINUS:
                                     """
                                     If we are here, it is because we detected a loop that can be turned into a transfer block
 
@@ -243,12 +249,15 @@ class BrainCramp:
                                     for instruc in loop_block:
                                         if instruc.code == OpCode.RIGHT:
                                             ptr_diff += instruc.arg
-                                        elif instruc.code == OpCode.PLUS:
+                                        elif instruc.code == OpCode.LEFT:
+                                            ptr_diff -= instruc.arg
+                                        elif instruc.code == OpCode.PLUS and ptr_diff != 0:
                                             transfer_arg.inc_ptrs.append((ptr_diff, instruc.arg))
                                         elif instruc.code == OpCode.MINUS:
-                                            # ToDo: if a minus is not first of last, it is because we reduce
-                                            # ToDo: instead of copying. Therefore we can also optimise that case
-                                            minus_c += 1
+                                            if ptr_diff != 0 and ptr_diff != (len(loop_block) - 1):
+                                                transfer_arg.inc_ptrs.append((ptr_diff, -instruc.arg))
+                                            else:
+                                                minus_c += 1
 
                                     if minus_c < 2:
                                         del instruction_set[last_opening:]
@@ -266,12 +275,13 @@ class BrainCramp:
 
             ip += 1
 
-        #for c in instruction_set:
-        #    if c.code == OpCode.TRANSFER_VAL:
-        #        print("Transfer to:")
-        #        print(c.extra)
-        #    else:
-        #        pass  # print("%s %s" % (c.code, str(c.arg)))
+        if self.debug:
+            for c in instruction_set:
+                if c.code == OpCode.TRANSFER_VAL:
+                    print("Transfer to:")
+                    print(c.extra)
+                else:
+                    print("%s %s" % (c.code, str(c.arg)))
 
         return self.run(instruction_set)
 
@@ -305,8 +315,6 @@ class BrainCramp:
                 new_letter = self.read_ascii()
                 sys.stdout.write(new_letter)
                 sys.stdout.flush()
-            elif c.code == OpCode.RESET_TO_ZERO:
-                self.write(0)
             elif c.code == OpCode.TRANSFER_VAL:
                 transfer_arg = c.arg
                 base = self.read()
@@ -320,9 +328,17 @@ class BrainCramp:
 
             position += 1
 
+    def _reset_optimisation_vars(self):
+        self.move_right_val = 0
+        self.can_op = True
+        self.left_blocks = 0
+        pass
+
+
+# TODO: ->+++<<+++> that can be optimised
 
 br = BrainCramp(
-    """++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++.------.--------.>+.>.""")
-
-r = br.interpret()
+    "++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++.------.--------.>+.>.",
+    debug=True)
+br.interpret()
 # Prints Hello world!
