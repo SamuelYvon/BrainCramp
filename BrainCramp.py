@@ -201,8 +201,8 @@ class BrainCramp:
                 loop_block = instruction_set[last_opening + 1:]  # we do not want the loop start
                 diff = len(loop_block)
 
-                if diff > 1 and self.optimize:
-                    if diff == 2:
+                if diff > 0 and self.optimize:
+                    if diff == 1:
                         last_idx = len(instruction_set) - 1
                         last_instr = instruction_set[last_idx]
 

@@ -13,7 +13,7 @@ public class BrainCrampNasm {
     }
 
     public void compile() {
-        InstructionSet instructionSet = new InstructionSet(code, false);
+       // InstructionSet instructionSet = new InstructionSet(code, false);
 
     }
 }

@@ -1,5 +1,6 @@
 package com.samuelyvon.BrainCramp.Analysis;
 
+import com.samuelyvon.BrainCramp.Execution.OptimisationArgs;
 import com.samuelyvon.OpCode;
 
 import java.util.ArrayList;
@@ -17,9 +18,9 @@ public class InstructionSet implements Iterable<Instruction> {
     private int latestStart;
 
     private boolean canOp = true;
-    private boolean optimise;
+    private OptimisationArgs optimise;
 
-    public InstructionSet(String code, boolean optimise) {
+    public InstructionSet(String code, OptimisationArgs optimise) {
         instructions = new ArrayList<>();
         this.code = code;
         this.optimise = optimise;
@@ -67,12 +68,12 @@ public class InstructionSet implements Iterable<Instruction> {
 
                     boolean couldOp = false;
 
-                    if (optimise) {
+                    if (null != optimise) {
                         List<Instruction> loopBlock = instructions.subList(latestStart + 1, instructions.size());
                         int loopSize = loopBlock.size();
 
-                        if (loopSize > 1) {
-                            if (loopSize == 2) {
+                        if (loopSize > 0) {
+                            if (optimise.resetToZero && loopSize == 1) {
                                 int lastIdx = instructions.size() - 1;
                                 Instruction latestInstr = instructions.get(lastIdx);
 
@@ -82,16 +83,27 @@ public class InstructionSet implements Iterable<Instruction> {
                                     couldOp = true;
                                 }
 
-                            } else if (canOp) {
+                            } else if (optimise.transferArgs && canOp) {
                                 List<Instruction> leftBlocks = new ArrayList<>();
                                 List<Instruction> rightBlocks = new ArrayList<>();
+                                int plusCount = 0;
+                                int minusCount = 0;
 
                                 //TODO: Maybe add to a list while scanning?
                                 for (Instruction instr : loopBlock) {
-                                    if (instr.getCode() == OpCode.LEFT) {
-                                        leftBlocks.add(instr);
-                                    } else if (instr.getCode() == OpCode.RIGHT) {
-                                        rightBlocks.add(instr);
+                                    switch (instr.getCode()) {
+                                        case LEFT:
+                                            leftBlocks.add(instr);
+                                            break;
+                                        case RIGHT:
+                                            rightBlocks.add(instr);
+                                            break;
+                                        case PLUS:
+                                            ++plusCount;
+                                            break;
+                                        case MINUS:
+                                            ++minusCount;
+                                            break;
                                     }
                                 }
 
@@ -100,12 +112,12 @@ public class InstructionSet implements Iterable<Instruction> {
                                     int leftLength = onlyLeft.getArg().getValues()[0];
                                     if (leftLength == moveRightValue) {
 
-                                        int totalSize = (rightBlocks.size()) + (leftBlocks.size());
+                                        int totalSize = plusCount + minusCount;
                                         TransferArg transferArg = new TransferArg(totalSize);
 
-                                        int minusCount = 0;
                                         int positionDiff = 0;
                                         int added = 0;
+                                        int weirdlyPlacedMinus = 0;
                                         for (Instruction instr : loopBlock) {
                                             switch (instr.getCode()) {
                                                 case RIGHT: {
@@ -132,14 +144,14 @@ public class InstructionSet implements Iterable<Instruction> {
                                                         transferArg.args[added] = -val;
                                                         ++added;
                                                     } else {
-                                                        ++minusCount;
+                                                        ++weirdlyPlacedMinus;//ToDo: unsure why this is a thing
                                                     }
                                                 }
                                                 break;
                                             }
                                         }
 
-                                        if (minusCount < 2) {
+                                        if (weirdlyPlacedMinus < 2) {
                                             removeRange(latestStart, instructions.size());
                                             Instruction instruction = new Instruction(OpCode.TRANSFER, transferArg);
                                             instructions.add(instruction);
@@ -175,11 +187,11 @@ public class InstructionSet implements Iterable<Instruction> {
     }
 
     private void addOrReplace(OpCode code) {
-        if (instructions.isEmpty() || (!optimise)) {
+        if (instructions.isEmpty() || (!optimise.compress)) {
             createInstruction(code, 1);
         } else {
             Instruction latest = instructions.get(instructions.size() - 1);
-            if (latest.getCode() == code && null != latest.getArg() && latest.getArg() instanceof IntArg) {
+            if ((latest.getCode() == code) && (null != latest.getArg())) {
                 IntArg latestArg = (IntArg) latest.getArg();
                 latestArg.increment();
 

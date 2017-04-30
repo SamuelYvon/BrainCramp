@@ -75,7 +75,9 @@ public class MemoryManager {
 
     private void extendMemory(int address) {
         int diff = address - (memory.length - 1);
+        //System.out.println("Extending memory, exceeding by: " + diff + "B");
         int size = (diff * 4 + 16) + memory.length;
+        //System.out.println("New size will be : " + size + "B");
         int[] newMem = new int[size];
         System.arraycopy(this.memory, 0, newMem, 0, memory.length);
         this.memory = newMem;
@@ -87,5 +89,9 @@ public class MemoryManager {
 
     public int getCurrentAddr() {
         return currentMemPointer;
+    }
+
+    public int getSize() {
+        return memory.length;
     }
 }

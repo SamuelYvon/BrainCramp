@@ -12,14 +12,21 @@ public class BrainCrampImpl {
     private String code;
     private String input;
     private MemoryManager mem;
+    private OptimisationArgs optimise;
 
     private int argReaderPointer;
 
-    public BrainCrampImpl(String code, String ipt) {
+    public BrainCrampImpl(String code, String ipt, OptimisationArgs optimisationArgs) {
         this.code = code;
         this.input = ipt;
         this.argReaderPointer = 0;
         this.mem = new MemoryManager(15);
+
+        if (null == optimisationArgs) {
+            optimisationArgs = new OptimisationArgs(false);
+        }
+
+        this.optimise = optimisationArgs;
     }
 
     private void writeArgument() {
@@ -30,21 +37,26 @@ public class BrainCrampImpl {
     }
 
     public void run() {
-        InstructionSet set = new InstructionSet(code, true);
 
         Date before = new Date();
 
+        InstructionSet set = new InstructionSet(code, optimise);
         set.build();
         JumpTable jumpTable = new JumpTable(set);
 
         Date after = new Date();
 
-        long durationInSec = (after.getTime() - before.getTime()) / 1000;
+        long durationInSec = (after.getTime() - before.getTime()) / 1000L;
         System.out.println("Duration of analysis: " + (durationInSec) + " seconds");
 
         before = new Date();
         int position = 0;
+        long iters = 0;
+        long resets = 0;
+        long transfers = 0;
+        long transferIters = 0;
         while (position < set.size()) {
+            ++iters;
             Instruction instruction = set.getAt(position);
 
             switch (instruction.getCode()) {
@@ -61,15 +73,16 @@ public class BrainCrampImpl {
                     mem.increment(instruction.getArg().getValues()[0]);
                     break;
                 case RESET_TO_ZERO:
+                    ++resets;
                     mem.write(0);
                     break;
                 case LOOP_START:
-                    if (mem.read() == 0) {
+                    if (mem.isZero()) {
                         position = jumpTable.getJump(position);
                     }
                     break;
                 case LOOP_END:
-                    if (mem.read() > 0) {
+                    if (!mem.isZero()) {
                         position = jumpTable.getJump(position);
                     }
                     break;
@@ -77,14 +90,16 @@ public class BrainCrampImpl {
                     writeArgument();
                     break;
                 case WRITE:
-                    System.out.print(mem.readAscii());
+                    char toPrnt = mem.readAscii();
+                    //System.out.print(toPrnt);
                     break;
                 case TRANSFER:
+                    ++transfers;
                     TransferArg transferProps = (TransferArg) instruction.getArg();
                     int argCount = transferProps.args.length;
                     int currentVal = mem.read();
-                    int lastPos = mem.getCurrentAddr();
                     for (int argIdx = 0; argIdx < argCount; ++argIdx) {
+                        ++transferIters;
                         int address = transferProps.positions[argIdx] + mem.getCurrentAddr();
                         int ratio = transferProps.args[argIdx];
                         mem.write(address, mem.read(address) + (currentVal * ratio));
@@ -92,15 +107,17 @@ public class BrainCrampImpl {
 
                     mem.write(0);
 
-                    assert mem.getCurrentAddr() == lastPos;
-
                     break;
             }
             ++position;
         }
         after = new Date();
 
-        durationInSec = (after.getTime() - before.getTime()) / 1000;
+        durationInSec = (after.getTime() - before.getTime()) / 1000L;
         System.out.println("Duration of execution: " + (durationInSec) + " seconds");
+        System.out.println(iters + " iterations");
+        System.out.println(resets + " reset to zeros");
+        System.out.println(transfers + " transfers with " + transferIters + " transfer iterations");
+        System.out.println(mem.getSize() + " Mem cells");
     }
 }
