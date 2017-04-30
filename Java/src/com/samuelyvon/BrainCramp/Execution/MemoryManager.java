@@ -1,4 +1,4 @@
-package com.samuelyvon.impl;
+package com.samuelyvon.BrainCramp.Execution;
 
 public class MemoryManager {
 
@@ -79,5 +79,9 @@ public class MemoryManager {
 
     public boolean isZero() {
         return read() == 0;
+    }
+
+    public int getCurrentAddr() {
+        return currentMemPointer;
     }
 }

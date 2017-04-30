@@ -1,4 +1,4 @@
-package com.samuelyvon;
+package com.samuelyvon.BrainCramp.Analysis;
 
 public interface InstructionArgument {
     int[] getValues();

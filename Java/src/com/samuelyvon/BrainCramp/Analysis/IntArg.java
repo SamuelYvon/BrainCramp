@@ -1,6 +1,4 @@
-package com.samuelyvon.impl;
-
-import com.samuelyvon.InstructionArgument;
+package com.samuelyvon.BrainCramp.Analysis;
 
 public class IntArg implements InstructionArgument {
 

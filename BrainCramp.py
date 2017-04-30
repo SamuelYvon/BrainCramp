@@ -240,33 +240,32 @@ class BrainCramp:
                         if len(left_blocks) > 0 and len(right_blocks) > 0:
                             only_left = left_blocks[0]
                             if only_left.arg == self.move_right_val:
-                                if True:  # loop_block[-1:][0].code == OpCode.MINUS or loop_block[:-1][0].code == OpCode.MINUS:
-                                    """
-                                    If we are here, it is because we detected a loop that can be turned into a transfer block
+                                """
+                                If we are here, it is because we detected a loop that can be turned into a transfer block
 
-                                    """
-                                    transfer_arg = ValueTransferArg()
-                                    minus_c = 0
-                                    ptr_diff = 0
-                                    for instruc in loop_block:
-                                        if instruc.code == OpCode.RIGHT:
-                                            ptr_diff += instruc.arg
-                                        elif instruc.code == OpCode.LEFT:
-                                            ptr_diff -= instruc.arg
-                                        elif instruc.code == OpCode.PLUS and ptr_diff != 0:
-                                            transfer_arg.inc_ptrs.append((ptr_diff, instruc.arg))
-                                        elif instruc.code == OpCode.MINUS:
-                                            if ptr_diff != 0 and ptr_diff != (len(loop_block) - 1):
-                                                transfer_arg.inc_ptrs.append((ptr_diff, -instruc.arg))
-                                            else:
-                                                minus_c += 1
+                                """
+                                transfer_arg = ValueTransferArg()
+                                minus_c = 0
+                                ptr_diff = 0
+                                for instruc in loop_block:
+                                    if instruc.code == OpCode.RIGHT:
+                                        ptr_diff += instruc.arg
+                                    elif instruc.code == OpCode.LEFT:
+                                        ptr_diff -= instruc.arg
+                                    elif instruc.code == OpCode.PLUS and ptr_diff != 0:
+                                        transfer_arg.inc_ptrs.append((ptr_diff, instruc.arg))
+                                    elif instruc.code == OpCode.MINUS:
+                                        if ptr_diff != 0 and ptr_diff != (len(loop_block) - 1):
+                                            transfer_arg.inc_ptrs.append((ptr_diff, -instruc.arg))
+                                        else:
+                                            minus_c += 1
 
-                                    if minus_c < 2:
-                                        del instruction_set[last_opening:]
-                                        instr = Instruction(OpCode.TRANSFER_VAL, transfer_arg)
-                                        instr.extra = [str(c.code) + "{%d}" % c.arg for c in loop_block]
-                                        instruction_set.append(instr)
-                                        could_optimize = True
+                                if minus_c < 2:
+                                    del instruction_set[last_opening:]
+                                    instr = Instruction(OpCode.TRANSFER_VAL, transfer_arg)
+                                    instr.extra = [str(c.code) + "{%d}" % c.arg for c in loop_block]
+                                    instruction_set.append(instr)
+                                    could_optimize = True
 
                 self.can_op = False
                 self.move_right_val = 0

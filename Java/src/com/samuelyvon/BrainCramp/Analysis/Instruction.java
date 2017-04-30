@@ -1,5 +1,8 @@
-package com.samuelyvon;
+package com.samuelyvon.BrainCramp.Analysis;
 
+
+import com.samuelyvon.BrainCramp.Analysis.InstructionArgument;
+import com.samuelyvon.OpCode;
 
 public class Instruction {
 

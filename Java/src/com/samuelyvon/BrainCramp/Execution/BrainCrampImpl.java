@@ -1,9 +1,9 @@
-package com.samuelyvon;
+package com.samuelyvon.BrainCramp.Execution;
 
 
-import com.samuelyvon.impl.InstructionSet;
-import com.samuelyvon.impl.JumpTable;
-import com.samuelyvon.impl.MemoryManager;
+import com.samuelyvon.BrainCramp.Analysis.Instruction;
+import com.samuelyvon.BrainCramp.Analysis.InstructionSet;
+import com.samuelyvon.BrainCramp.Analysis.TransferArg;
 
 public class BrainCrampImpl {
 
@@ -28,7 +28,7 @@ public class BrainCrampImpl {
     }
 
     public void run() {
-        InstructionSet set = new InstructionSet(code);
+        InstructionSet set = new InstructionSet(code, true);
         set.build();
         JumpTable jumpTable = new JumpTable(set);
 
@@ -69,6 +69,18 @@ public class BrainCrampImpl {
                     System.out.print(mem.readAscii());
                     break;
                 case TRANSFER:
+                    TransferArg transferProps = (TransferArg) instruction.getArg();
+                    int argCount = transferProps.args.length;
+                    int currentVal = mem.read();
+
+                    for (int argIdx = 0; argIdx < argCount; ++argIdx) {
+                        int address = transferProps.positions[argIdx] + mem.getCurrentAddr();
+                        int ratio = transferProps.args[argIdx];
+                        mem.write(address, mem.read(address) + (currentVal * ratio));
+                    }
+
+                    mem.write(0);
+
                     break;
             }
             ++position;

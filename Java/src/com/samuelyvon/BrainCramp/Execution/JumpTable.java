@@ -1,6 +1,7 @@
-package com.samuelyvon.impl;
+package com.samuelyvon.BrainCramp.Execution;
 
-import com.samuelyvon.Instruction;
+import com.samuelyvon.BrainCramp.Analysis.Instruction;
+import com.samuelyvon.BrainCramp.Analysis.InstructionSet;
 import com.samuelyvon.OpCode;
 
 import java.util.HashMap;
