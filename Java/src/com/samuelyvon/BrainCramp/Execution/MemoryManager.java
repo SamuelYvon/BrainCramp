@@ -17,6 +17,7 @@ public class MemoryManager {
 
     public void write(int address, int value) {
         int total = mod(value, MEMORY_MAX_VAL);
+        address = Math.max(0, address);
         memory[address] = total;
     }
 
@@ -39,6 +40,9 @@ public class MemoryManager {
     public int read(int address) {
         if (address > (memory.length - 1))
             extendMemory(address);
+
+        address = Math.max(0, address);
+
         return memory[address];
     }
 

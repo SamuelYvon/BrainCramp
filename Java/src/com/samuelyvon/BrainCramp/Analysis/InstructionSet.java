@@ -175,7 +175,7 @@ public class InstructionSet implements Iterable<Instruction> {
     }
 
     private void addOrReplace(OpCode code) {
-        if (instructions.isEmpty()) {
+        if (instructions.isEmpty() || (!optimise)) {
             createInstruction(code, 1);
         } else {
             Instruction latest = instructions.get(instructions.size() - 1);

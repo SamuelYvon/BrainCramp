@@ -5,6 +5,8 @@ import com.samuelyvon.BrainCramp.Analysis.Instruction;
 import com.samuelyvon.BrainCramp.Analysis.InstructionSet;
 import com.samuelyvon.BrainCramp.Analysis.TransferArg;
 
+import java.util.Date;
+
 public class BrainCrampImpl {
 
     private String code;
@@ -29,9 +31,18 @@ public class BrainCrampImpl {
 
     public void run() {
         InstructionSet set = new InstructionSet(code, true);
+
+        Date before = new Date();
+
         set.build();
         JumpTable jumpTable = new JumpTable(set);
 
+        Date after = new Date();
+
+        long durationInSec = (after.getTime() - before.getTime()) / 1000;
+        System.out.println("Duration of analysis: " + (durationInSec) + " seconds");
+
+        before = new Date();
         int position = 0;
         while (position < set.size()) {
             Instruction instruction = set.getAt(position);
@@ -72,7 +83,7 @@ public class BrainCrampImpl {
                     TransferArg transferProps = (TransferArg) instruction.getArg();
                     int argCount = transferProps.args.length;
                     int currentVal = mem.read();
-
+                    int lastPos = mem.getCurrentAddr();
                     for (int argIdx = 0; argIdx < argCount; ++argIdx) {
                         int address = transferProps.positions[argIdx] + mem.getCurrentAddr();
                         int ratio = transferProps.args[argIdx];
@@ -81,9 +92,15 @@ public class BrainCrampImpl {
 
                     mem.write(0);
 
+                    assert mem.getCurrentAddr() == lastPos;
+
                     break;
             }
             ++position;
         }
+        after = new Date();
+
+        durationInSec = (after.getTime() - before.getTime()) / 1000;
+        System.out.println("Duration of execution: " + (durationInSec) + " seconds");
     }
 }
