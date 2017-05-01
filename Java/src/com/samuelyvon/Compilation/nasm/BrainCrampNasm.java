@@ -69,11 +69,13 @@ public class BrainCrampNasm {
                 }
                 break;
                 case MINUS:
+                    code.addInstruction("; MINUS");
                     loadCurrentValueInWith(code, EDX, ECX);
                     code.addInstruction("DEC", EDX);
                     unloadCurrentValueFromWith(code, EDX, ECX);
                     break;
                 case PLUS:
+                    code.addInstruction("; PLUS");
                     loadCurrentValueInWith(code, EDX, ECX);
                     code.addInstruction("INC", EDX);
                     unloadCurrentValueFromWith(code, EDX, ECX);
@@ -103,6 +105,9 @@ public class BrainCrampNasm {
             ++position;
         }
 
+
+        load(code, EAX, 1);
+        code.addInstruction("int 0x80");
 
         //Build the result
 
