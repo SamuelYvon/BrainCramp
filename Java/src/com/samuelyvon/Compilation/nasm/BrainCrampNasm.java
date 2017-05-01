@@ -17,6 +17,7 @@ public class BrainCrampNasm {
 
     private static final String bufferVar = "buffer";
     private static final String pointerVar = "pointer";
+    private static final String currentValPointer = "value";
 
     public BrainCrampNasm(String code, String ipt, OptimisationArgs optimisationArgs) {
         this.sourceCode = code;
@@ -30,8 +31,9 @@ public class BrainCrampNasm {
         Segment code = new Segment("text");
         Segment cleanup = new Segment("bss");
 
-        data.addInstruction(bufferVar, "times", "50", "db", "97"); //create a 1024 of length buffer
-        data.addInstruction(pointerVar, "db", "0");
+        data.addInstruction(bufferVar, "times", "50", "db", "0"); //create a 1024 of length buffer
+        data.addInstruction(pointerVar, "dw", "0");
+        data.addInstruction(currentValPointer, "db", 0);
 
         code.addInstruction("global _start");
         code.addInstruction("_start:");
@@ -53,33 +55,37 @@ public class BrainCrampNasm {
             switch (instruction.getCode()) {
                 case LEFT: {
                     code.addInstruction("; LEFT");
-                    load(code, AX, getValue(pointerVar));
+                    load(code, EAX, getValue(pointerVar));
                     int leftVal = instruction.getArg().getValues()[0];
-                    code.addInstruction("ADD", AX, ",", leftVal);
-                    unload(code, getValue(pointerVar), AX);
+                    code.addInstruction("SUB", EAX, ",", leftVal);
+                    unload(code, getValue(pointerVar), EAX);
                 }
                 break;
                 case RIGHT: {
                     code.addInstruction("; RIGHT");
                     //TODO CHECK IF LT ZERO
-                    load(code, AX, getValue(pointerVar));
+                    load(code, EAX, getValue(pointerVar));
                     int leftVal = instruction.getArg().getValues()[0];
-                    code.addInstruction("SUB", AX, ",", leftVal);
-                    unload(code, getValue(pointerVar), AX);
+                    code.addInstruction("ADD", EAX, ",", leftVal);
+                    unload(code, getValue(pointerVar), EAX);
                 }
                 break;
-                case MINUS:
+                case MINUS: {
                     code.addInstruction("; MINUS");
                     loadCurrentValueInWith(code, EDX, ECX);
-                    code.addInstruction("DEC", EDX);
+                    int val = instruction.getArg().getValues()[0];
+                    code.addInstruction("SUB", EDX, ',', val);
                     unloadCurrentValueFromWith(code, EDX, ECX);
-                    break;
-                case PLUS:
+                }
+                break;
+                case PLUS: {
                     code.addInstruction("; PLUS");
                     loadCurrentValueInWith(code, EDX, ECX);
-                    code.addInstruction("INC", EDX);
+                    int val = instruction.getArg().getValues()[0];
+                    code.addInstruction("ADD", EDX, ',', val);
                     unloadCurrentValueFromWith(code, EDX, ECX);
-                    break;
+                }
+                break;
                 case RESET_TO_ZERO:
                     loadCurrentValueInWith(code, EDX, ECX);
                     load(code, EDX, 0);
@@ -107,7 +113,7 @@ public class BrainCrampNasm {
 
 
         load(code, EAX, 1);
-        code.addInstruction("int 0x80");
+        code.addInstruction("int 0x80 ;exit");
 
         //Build the result
 
@@ -125,19 +131,20 @@ public class BrainCrampNasm {
     }
 
     private void loadCurrentValueInWith(Segment segment, Register inRegister, Register withRegister) {
-        load(segment, withRegister, pointerVar);
+        load(segment, withRegister, getValue(pointerVar));
         load(segment, inRegister, "[" + bufferVar + " + " + withRegister + "]");
     }
 
     private void unloadCurrentValueFromWith(Segment segment, Register currentValReg, Register idxRegister) {
-        load(segment, idxRegister, pointerVar);
+        load(segment, idxRegister, getValue(pointerVar));
         unload(segment, "[" + bufferVar + " + " + idxRegister + "]", currentValReg);
     }
 
     private void print(Segment segment, String ddIdxVar, String arrayVar) {
-        load(segment, ECX, ddIdxVar);
+        load(segment, ECX, getValue(ddIdxVar));
         load(segment, EDX, "[" + arrayVar + " + " + ECX + "]");
-        print(segment, EDX.getName());
+        unload(segment, getValue(currentValPointer), EDX);
+        print(segment, currentValPointer);
     }
 
     private void load(Segment segment, Register register, Object value) {
