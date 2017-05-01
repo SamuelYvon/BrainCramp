@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class Main {
+public class Interpret {
 
 
     private static class TestPlan {
@@ -57,7 +57,7 @@ public class Main {
             System.out.println("--------------------------------------------------------");
             System.out.println("PLAN: " + testPlan.name);
             Date before = new Date();
-            BrainCrampImpl brainCramp = new BrainCrampImpl(HANOI_B, "", testPlan.arg);
+            BrainCrampImpl brainCramp = new BrainCrampImpl(HELLO_WORLD_B, "", testPlan.arg);
             brainCramp.run();
             Date after = new Date();
             long millis = after.getTime() - before.getTime();
@@ -66,8 +66,10 @@ public class Main {
         }
     }
 
+    public static final String HELLO_WORLD_B = "++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++.------.--------.>+.>.";
+
     //https://github.com/erikdubbelboer/brainfuck-jit/blob/master/mandelbrot.bf
-    private static final String MANDELBROT_B = "+++++++++++++[->++>>>+++++>++>+<<<<<<]>>>>>++++++>--->>>>>>>>>>+++++++++++++++[[\n" +
+    public static final String MANDELBROT_B = "+++++++++++++[->++>>>+++++>++>+<<<<<<]>>>>>++++++>--->>>>>>>>>>+++++++++++++++[[\n" +
             ">>>>>>>>>]+[<<<<<<<<<]>>>>>>>>>-]+[>>>>>>>>[-]>]<<<<<<<<<[<<<<<<<<<]>>>>>>>>[-]+\n" +
             "<<<<<<<+++++[-[->>>>>>>>>+<<<<<<<<<]>>>>>>>>>]>>>>>>>+>>>>>>>>>>>>>>>>>>>>>>>>>>\n" +
             ">+<<<<<<<<<<<<<<<<<[<<<<<<<<<]>>>[-]+[>>>>>>[>>>>>>>[-]>>]<<<<<<<<<[<<<<<<<<<]>>\n" +
