@@ -16,7 +16,6 @@ public class BrainCrampNasm {
 
 
     private static final String bufferVar = "buffer";
-    private static final String pointerVar = "pointer";
     private static final String currentValPointer = "value";
 
     public BrainCrampNasm(String code, String ipt, OptimisationArgs optimisationArgs) {
@@ -32,7 +31,6 @@ public class BrainCrampNasm {
         Segment cleanup = new Segment("bss");
 
         data.addInstruction(bufferVar, "times", "50", "db", "0"); //create a 1024 of length buffer
-        data.addInstruction(pointerVar, "dw", "0");
         data.addInstruction(currentValPointer, "db", 0);
 
         code.addInstruction("global _start");
@@ -45,7 +43,7 @@ public class BrainCrampNasm {
         JumpTable jumpTable = new JumpTable(set);
 
 
-        // print(code, "pointer", "buffer");
+        // loadAndPrint(code, "pointer", "buffer");
 
         int position = 0;
         while (position < set.size()) {
@@ -55,19 +53,19 @@ public class BrainCrampNasm {
             switch (instruction.getCode()) {
                 case LEFT: {
                     code.addInstruction("; LEFT");
-                    load(code, EAX, getValue(pointerVar));
+                    //load(code, EAX, getValue(pointerVar));
                     int leftVal = instruction.getArg().getValues()[0];
-                    code.addInstruction("SUB", EAX, ",", leftVal);
-                    unload(code, getValue(pointerVar), EAX);
+                    code.addInstruction("SUB", ESI, ",", leftVal);
+                    //unload(code, getValue(pointerVar), EAX);
                 }
                 break;
                 case RIGHT: {
                     code.addInstruction("; RIGHT");
                     //TODO CHECK IF LT ZERO
-                    load(code, EAX, getValue(pointerVar));
+                    //load(code, EAX, getValue(pointerVar));
                     int leftVal = instruction.getArg().getValues()[0];
-                    code.addInstruction("ADD", EAX, ",", leftVal);
-                    unload(code, getValue(pointerVar), EAX);
+                    code.addInstruction("ADD", ESI, ",", leftVal);
+                    //unload(code, getValue(pointerVar), EAX);
                 }
                 break;
                 case MINUS: {
@@ -92,17 +90,22 @@ public class BrainCrampNasm {
                     unloadCurrentValueFromWith(code, EDX, ECX);
                     break;
                 case LOOP_START:
-
+                    code.addInstruction("loop_start_" + position + ":");
+                    loadCurrentValueInWith(code, EDX, ECX);
+                    code.addInstruction("cmp", EDX.getName(), ',', 0);
+                    code.addInstruction("je", "loop_end_" + position);
                     break;
                 case LOOP_END:
-
+                    int startPos = jumpTable.getJump(position);
+                    code.addInstruction("jmp", "loop_start_" + startPos);
+                    code.addInstruction("loop_end_" + startPos + ":");
                     break;
                 case READ:
                     throw new UnsupportedOperationException("Cannot read in compile mode");//ToDO: yet...
                     //break;
                 case WRITE:
                     code.addInstruction("; PRINT TO STDOUT");
-                    print(code, pointerVar, bufferVar);
+                    loadAndPrint(code, bufferVar);
                     break;
                 case TRANSFER:
 
@@ -131,18 +134,15 @@ public class BrainCrampNasm {
     }
 
     private void loadCurrentValueInWith(Segment segment, Register inRegister, Register withRegister) {
-        load(segment, withRegister, getValue(pointerVar));
-        load(segment, inRegister, "[" + bufferVar + " + " + withRegister + "]");
+        load(segment, inRegister, "[" + bufferVar + " + " + ESI + "]");
     }
 
     private void unloadCurrentValueFromWith(Segment segment, Register currentValReg, Register idxRegister) {
-        load(segment, idxRegister, getValue(pointerVar));
-        unload(segment, "[" + bufferVar + " + " + idxRegister + "]", currentValReg);
+        unload(segment, "[" + bufferVar + " + " + ESI + "]", currentValReg);
     }
 
-    private void print(Segment segment, String ddIdxVar, String arrayVar) {
-        load(segment, ECX, getValue(ddIdxVar));
-        load(segment, EDX, "[" + arrayVar + " + " + ECX + "]");
+    private void loadAndPrint(Segment segment, String arrayVar) {
+        load(segment, EDX, "[" + arrayVar + " + " + ESI + "]");
         unload(segment, getValue(currentValPointer), EDX);
         print(segment, currentValPointer);
     }
