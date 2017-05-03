@@ -95,18 +95,19 @@ public class BrainCrampImpl {
                     break;
                 case TRANSFER:
                     ++transfers;
-                    TransferArg transferProps = (TransferArg) instruction.getArg();
-                    int argCount = transferProps.args.length;
-                    int currentVal = mem.read();
-                    for (int argIdx = 0; argIdx < argCount; ++argIdx) {
-                        ++transferIters;
-                        int address = transferProps.positions[argIdx] + mem.getCurrentAddr();
-                        int ratio = transferProps.args[argIdx];
-                        mem.write(address, mem.read(address) + (currentVal * ratio));
+                    if (!mem.isZero()) {
+                        TransferArg transferProps = (TransferArg) instruction.getArg();
+                        int argCount = transferProps.args.length;
+                        int currentVal = mem.read();
+                        for (int argIdx = 0; argIdx < argCount; ++argIdx) {
+                            ++transferIters;
+                            int address = transferProps.positions[argIdx] + mem.getCurrentAddr();
+                            int ratio = transferProps.args[argIdx];
+                            mem.write(address, mem.read(address) + (currentVal * ratio));
+                        }
+
+                        mem.write(0);
                     }
-
-                    mem.write(0);
-
                     break;
             }
             ++position;

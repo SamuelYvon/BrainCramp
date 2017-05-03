@@ -17,11 +17,10 @@ public class MemoryManager {
 
     public void write(int address, int value) {
         int total = mod(value, MEMORY_MAX_VAL);
-        address = Math.max(0, address);
         memory[address] = total;
     }
 
-    private int mod(int x, int y) {
+    private static int mod(int x, int y) {
         int result = x % y;
         if (result < 0) {
             result += y;
