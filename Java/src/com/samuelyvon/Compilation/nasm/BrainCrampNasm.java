@@ -28,7 +28,6 @@ public class BrainCrampNasm {
 
         Segment data = new Segment("data");
         Segment code = new Segment("text");
-        Segment cleanup = new Segment("bss");
 
         data.addInstruction(bufferVar, "times", "50", "db", "0"); //create a 1024 of length buffer
         data.addInstruction(currentValPointer, "db", 0);
@@ -42,6 +41,7 @@ public class BrainCrampNasm {
 
         JumpTable jumpTable = new JumpTable(set);
 
+        load(code, ESI, 0);
 
         // loadAndPrint(code, "pointer", "buffer");
 
@@ -52,20 +52,16 @@ public class BrainCrampNasm {
 
             switch (instruction.getCode()) {
                 case LEFT: {
+                    //TODO CHECK IF LT ZERO
                     code.addInstruction("; LEFT");
-                    //load(code, EAX, getValue(pointerVar));
                     int leftVal = instruction.getArg().getValues()[0];
                     code.addInstruction("SUB", ESI, ",", leftVal);
-                    //unload(code, getValue(pointerVar), EAX);
                 }
                 break;
                 case RIGHT: {
                     code.addInstruction("; RIGHT");
-                    //TODO CHECK IF LT ZERO
-                    //load(code, EAX, getValue(pointerVar));
                     int leftVal = instruction.getArg().getValues()[0];
                     code.addInstruction("ADD", ESI, ",", leftVal);
-                    //unload(code, getValue(pointerVar), EAX);
                 }
                 break;
                 case MINUS: {
@@ -85,6 +81,7 @@ public class BrainCrampNasm {
                 }
                 break;
                 case RESET_TO_ZERO:
+                    code.addInstruction(";Reset to zero");
                     loadCurrentValueInWith(code, EDX, ECX);
                     load(code, EDX, 0);
                     unloadCurrentValueFromWith(code, EDX, ECX);
@@ -108,13 +105,13 @@ public class BrainCrampNasm {
                     loadAndPrint(code, bufferVar);
                     break;
                 case TRANSFER:
-
+                    code.addInstruction("; Transfer");
                     break;
             }
             ++position;
         }
 
-
+        code.addInstruction(";exit");
         load(code, EAX, 1);
         code.addInstruction("int 0x80 ;exit");
 
@@ -124,7 +121,6 @@ public class BrainCrampNasm {
 
         data.toStringBuilder(output);
         code.toStringBuilder(output);
-        //cleanup.toStringBuilder(output);
 
         return output.toString();
     }
