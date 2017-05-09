@@ -4,11 +4,12 @@ import java.util.Date;
 
 public class MandelbrotBCompiled {
     private static int mod256(int x) {
-        int result = x % 256;
-        if (result < 0) {
-            result += 256;
+        if (x < 0) {
+            x += 256;
+        } else if (x > 255) {
+            x -= 256;
         }
-        return result;
+        return x;
     }
 
     public static void main(String... args) {

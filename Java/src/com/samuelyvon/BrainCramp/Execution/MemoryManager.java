@@ -21,11 +21,12 @@ public class MemoryManager {
     }
 
     private static int mod(int x, int y) {
-        int result = x % y;
-        if (result < 0) {
-            result += y;
+        if (x < 0) {
+            x += y;
+        } else if (x >= y) {
+            x -= y;
         }
-        return result;
+        return x;
     }
 
     public char readAscii() {

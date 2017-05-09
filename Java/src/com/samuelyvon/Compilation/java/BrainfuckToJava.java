@@ -28,11 +28,12 @@ public class BrainfuckToJava {
 
 
         sb.append("private static int mod256(int x) {\n" +
-                "        int result = x % 256;\n" +
-                "        if (result < 0) {\n" +
-                "            result += 256;\n" +
+                "        if (x < 0) {\n" +
+                "            x += 256;\n" +
+                "        } else if(x > 255) {" +
+                "            x -= 256;" +
                 "        }\n" +
-                "        return result;\n" +
+                "        return x;\n" +
                 "    }");
 
         sb.append("public static void main(String... args){");
