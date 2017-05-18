@@ -29,7 +29,7 @@ public class BrainCrampNasm {
         Segment data = new Segment("data");
         Segment code = new Segment("text");
 
-        data.addInstruction(bufferVar, "times", "50", "db", "0"); //create a 1024 of length buffer
+        data.addInstruction(bufferVar, "times", "500", "db", "0"); //create a 500 of length buffer
         data.addInstruction(currentValPointer, "db", 0);
 
         code.addInstruction("global _start");
@@ -66,35 +66,37 @@ public class BrainCrampNasm {
                 break;
                 case MINUS: {
                     code.addInstruction("; MINUS");
-                    loadCurrentValueInWith(code, EDX, ECX);
+                    loadCurrentValueInWith(code, AH);
                     int val = instruction.getArg().getValues()[0];
-                    code.addInstruction("SUB", EDX, ',', val);
-                    unloadCurrentValueFromWith(code, EDX, ECX);
+                    code.addInstruction("SUB", AH, ',', val);
+                    unloadCurrentValueFromWith(code, AH);
                 }
                 break;
                 case PLUS: {
                     code.addInstruction("; PLUS");
-                    loadCurrentValueInWith(code, EDX, ECX);
+                    loadCurrentValueInWith(code, AH);
                     int val = instruction.getArg().getValues()[0];
-                    code.addInstruction("ADD", EDX, ',', val);
-                    unloadCurrentValueFromWith(code, EDX, ECX);
+                    code.addInstruction("ADD", AH, ',', val);
+                    unloadCurrentValueFromWith(code, AH);
                 }
                 break;
                 case RESET_TO_ZERO:
                     code.addInstruction(";Reset to zero");
-                    loadCurrentValueInWith(code, EDX, ECX);
-                    load(code, EDX, 0);
-                    unloadCurrentValueFromWith(code, EDX, ECX);
+                    loadCurrentValueInWith(code, AH);
+                    load(code, AH, 0);
+                    unloadCurrentValueFromWith(code, AH);
                     break;
                 case LOOP_START:
                     code.addInstruction("loop_start_" + position + ":");
-                    loadCurrentValueInWith(code, EDX, ECX);
-                    code.addInstruction("cmp", EDX.getName(), ',', 0);
+                    loadCurrentValueInWith(code, AH);
+                    code.addInstruction("cmp", AH.getName(), ',', 0);
                     code.addInstruction("je", "loop_end_" + position);
                     break;
                 case LOOP_END:
                     int startPos = jumpTable.getJump(position);
-                    code.addInstruction("jmp", "loop_start_" + startPos);
+                    loadCurrentValueInWith(code, AH);
+                    code.addInstruction("cmp", AH.getName(), ',', 0);
+                    code.addInstruction("jne", "loop_start_" + startPos);
                     code.addInstruction("loop_end_" + startPos + ":");
                     break;
                 case READ:
@@ -129,17 +131,17 @@ public class BrainCrampNasm {
         return "[" + varName + "]";
     }
 
-    private void loadCurrentValueInWith(Segment segment, Register inRegister, Register withRegister) {
-        load(segment, inRegister, "[" + bufferVar + " + " + ESI + "]");
+    private void loadCurrentValueInWith(Segment segment, Register inRegister) {
+        load(segment, inRegister, "byte [" + bufferVar + " + " + ESI + "]");
     }
 
-    private void unloadCurrentValueFromWith(Segment segment, Register currentValReg, Register idxRegister) {
+    private void unloadCurrentValueFromWith(Segment segment, Register currentValReg) {
         unload(segment, "[" + bufferVar + " + " + ESI + "]", currentValReg);
     }
 
     private void loadAndPrint(Segment segment, String arrayVar) {
-        load(segment, EDX, "[" + arrayVar + " + " + ESI + "]");
-        unload(segment, getValue(currentValPointer), EDX);
+        load(segment, AH, "[" + arrayVar + " + " + ESI + "]");
+        unload(segment, getValue(currentValPointer), AH);
         print(segment, currentValPointer);
     }
 
