@@ -1,13 +1,13 @@
-package com.samuelyvon.BrainCramp.Compilation.nasm;
+package com.samuelyvon.braincramp.compilation.nasm;
 
-import com.samuelyvon.BrainCramp.Analysis.Instruction;
-import com.samuelyvon.BrainCramp.Analysis.InstructionSet;
-import com.samuelyvon.BrainCramp.Execution.JumpTable;
-import com.samuelyvon.BrainCramp.Execution.OptimisationArgs;
-import com.samuelyvon.BrainCramp.Compilation.BrainfuckBackend;
-import com.samuelyvon.BrainCramp.Compilation.Register;
+import com.samuelyvon.braincramp.analysis.Instruction;
+import com.samuelyvon.braincramp.analysis.InstructionSet;
+import com.samuelyvon.braincramp.execution.JumpTable;
+import com.samuelyvon.braincramp.execution.OptimisationArgs;
+import com.samuelyvon.braincramp.compilation.BrainfuckBackend;
+import com.samuelyvon.braincramp.compilation.Register;
 
-import static com.samuelyvon.BrainCramp.Compilation.nasm.NasmRegisters.*;
+import static com.samuelyvon.braincramp.compilation.nasm.NasmRegisters.*;
 
 public class BrainCrampNasm extends BrainfuckBackend {
 

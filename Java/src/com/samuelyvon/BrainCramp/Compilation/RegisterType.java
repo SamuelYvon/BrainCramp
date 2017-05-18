@@ -1,4 +1,4 @@
-package com.samuelyvon.BrainCramp.Compilation;
+package com.samuelyvon.braincramp.compilation;
 
 public enum RegisterType {
     DATA_REGISTER,

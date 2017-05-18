@@ -1,6 +1,6 @@
-package com.samuelyvon.BrainCramp.Compilation;
+package com.samuelyvon.braincramp.compilation;
 
-import com.samuelyvon.BrainCramp.Execution.OptimisationArgs;
+import com.samuelyvon.braincramp.execution.OptimisationArgs;
 
 public abstract class BrainfuckBackend {
 

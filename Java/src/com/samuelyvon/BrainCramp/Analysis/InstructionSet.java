@@ -1,6 +1,6 @@
-package com.samuelyvon.BrainCramp.Analysis;
+package com.samuelyvon.braincramp.analysis;
 
-import com.samuelyvon.BrainCramp.Execution.OptimisationArgs;
+import com.samuelyvon.braincramp.execution.OptimisationArgs;
 import com.samuelyvon.OpCode;
 
 import java.util.ArrayList;

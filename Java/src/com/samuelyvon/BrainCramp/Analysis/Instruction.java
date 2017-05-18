@@ -1,4 +1,4 @@
-package com.samuelyvon.BrainCramp.Analysis;
+package com.samuelyvon.braincramp.analysis;
 
 
 import com.samuelyvon.OpCode;

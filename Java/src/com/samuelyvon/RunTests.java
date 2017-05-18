@@ -1,7 +1,7 @@
 package com.samuelyvon;
 
-import com.samuelyvon.BrainCramp.Execution.BrainCrampImpl;
-import com.samuelyvon.BrainCramp.Execution.OptimisationArgs;
+import com.samuelyvon.braincramp.execution.BrainCrampImpl;
+import com.samuelyvon.braincramp.execution.OptimisationArgs;
 
 import java.util.ArrayList;
 import java.util.Date;

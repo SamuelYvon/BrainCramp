@@ -1,4 +1,4 @@
-package com.samuelyvon.BrainCramp.Compilation.java.out;
+package com.samuelyvon.braincramp.compilation.java.out;
 
 import java.util.Date;
 

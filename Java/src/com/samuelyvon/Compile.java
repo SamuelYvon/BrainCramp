@@ -1,9 +1,9 @@
 package com.samuelyvon;
 
-import com.samuelyvon.BrainCramp.Compilation.BrainfuckBackend;
-import com.samuelyvon.BrainCramp.Execution.OptimisationArgs;
-import com.samuelyvon.BrainCramp.Compilation.java.BrainfuckToJava;
-import com.samuelyvon.BrainCramp.Compilation.nasm.BrainCrampNasm;
+import com.samuelyvon.braincramp.compilation.BrainfuckBackend;
+import com.samuelyvon.braincramp.execution.OptimisationArgs;
+import com.samuelyvon.braincramp.compilation.java.BrainfuckToJava;
+import com.samuelyvon.braincramp.compilation.nasm.BrainCrampNasm;
 
 public class Compile {
 

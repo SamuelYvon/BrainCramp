@@ -1,9 +1,9 @@
-package com.samuelyvon.BrainCramp.Execution;
+package com.samuelyvon.braincramp.execution;
 
 
-import com.samuelyvon.BrainCramp.Analysis.Instruction;
-import com.samuelyvon.BrainCramp.Analysis.InstructionSet;
-import com.samuelyvon.BrainCramp.Analysis.TransferArg;
+import com.samuelyvon.braincramp.analysis.Instruction;
+import com.samuelyvon.braincramp.analysis.InstructionSet;
+import com.samuelyvon.braincramp.analysis.TransferArg;
 
 import java.util.Date;
 

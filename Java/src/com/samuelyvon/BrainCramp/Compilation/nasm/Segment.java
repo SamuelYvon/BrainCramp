@@ -1,4 +1,4 @@
-package com.samuelyvon.BrainCramp.Compilation.nasm;
+package com.samuelyvon.braincramp.compilation.nasm;
 
 
 import java.util.ArrayList;

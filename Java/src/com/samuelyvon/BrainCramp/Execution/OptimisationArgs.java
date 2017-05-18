@@ -1,4 +1,4 @@
-package com.samuelyvon.BrainCramp.Execution;
+package com.samuelyvon.braincramp.execution;
 
 public class OptimisationArgs {
     public boolean compress;
