@@ -12,7 +12,7 @@ public class BrainfuckToJava extends BrainfuckBackend {
 
     public BrainfuckToJava(String code, String ipt, OptimisationArgs optimisationArgs) {
         super(code, ipt, optimisationArgs);
-        assert Objects.equals("", ipt) : "MandelbrotBCompiled to java does not handle input";
+        assert Objects.equals("", ipt) : "Mandelbrot to java does not handle input";
     }
 
     @Override
@@ -20,7 +20,7 @@ public class BrainfuckToJava extends BrainfuckBackend {
 
         StringBuilder sb = new StringBuilder();
         sb.append("import java.util.Date;");
-        sb.append("public class MandelbrotBCompiled {");
+        sb.append("public class Mandelbrot {");
 
 
         sb.append("private static int mod256(int x) {\n" +

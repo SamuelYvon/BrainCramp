@@ -12,8 +12,6 @@ public class InstructionSet implements Iterable<Instruction> {
     private ArrayList<Instruction> instructions;
     private String code;
 
-    private int lastRight;
-    private int leftBlocks;
     private int moveRightValue;
     private int latestStart;
 
@@ -33,7 +31,6 @@ public class InstructionSet implements Iterable<Instruction> {
             switch (charac) {
                 case '>': {
                     addOrReplace(OpCode.RIGHT);
-                    lastRight = i;
                 }
                 break;
                 case '<': {
@@ -165,7 +162,6 @@ public class InstructionSet implements Iterable<Instruction> {
 
                     canOp = false;
                     moveRightValue = 0;
-                    leftBlocks = 0;
 
                     if (!couldOp)
                         createInstruction(OpCode.LOOP_END);
@@ -183,7 +179,6 @@ public class InstructionSet implements Iterable<Instruction> {
     private void resetOptimisation() {
         this.moveRightValue = 0;
         this.canOp = true;
-        this.leftBlocks = 0;
     }
 
     private void addOrReplace(OpCode code) {
@@ -209,9 +204,7 @@ public class InstructionSet implements Iterable<Instruction> {
         Instruction instruction = new Instruction(code, new IntArg(arg));
         instructions.add(instruction);
 
-        if (OpCode.PLUS == code) {
-            ++leftBlocks;
-        } else if (OpCode.LEFT == code) {
+        if (OpCode.LEFT == code) {
             ++moveRightValue;
         }
     }
@@ -220,9 +213,7 @@ public class InstructionSet implements Iterable<Instruction> {
         Instruction instruction = new Instruction(code, null);
         instructions.add(instruction);
 
-        if (OpCode.PLUS == code) {
-            ++leftBlocks;
-        } else if (OpCode.LEFT == code) {
+        if (OpCode.LEFT == code) {
             ++moveRightValue;
         }
     }

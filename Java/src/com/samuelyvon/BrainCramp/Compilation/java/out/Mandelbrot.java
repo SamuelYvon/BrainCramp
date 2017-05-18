@@ -1,8 +1,8 @@
-package com.samuelyvon.BrainCramp.Compilation.java;
+package com.samuelyvon.BrainCramp.Compilation.java.out;
 
 import java.util.Date;
 
-public class MandelbrotBCompiled {
+public class Mandelbrot {
     private static int mod256(int x) {
         if (x < 0) {
             x += 256;

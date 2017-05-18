@@ -18,6 +18,7 @@ public class BrainCrampNasm extends BrainfuckBackend {
 
     public BrainCrampNasm(String code, String ipt, OptimisationArgs optimisationArgs) {
         super(code, ipt, optimisationArgs);
+        if (optimisationArgs.transferArgs) optimisationArgs.transferArgs = false;
     }
 
     @Override
