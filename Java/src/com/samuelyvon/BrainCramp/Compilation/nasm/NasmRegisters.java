@@ -1,9 +1,9 @@
-package com.samuelyvon.Compilation.nasm;
+package com.samuelyvon.BrainCramp.Compilation.nasm;
 
-import com.samuelyvon.Compilation.Register;
-import com.samuelyvon.Compilation.RegisterType;
+import com.samuelyvon.BrainCramp.Compilation.Register;
+import com.samuelyvon.BrainCramp.Compilation.RegisterType;
 
-import static com.samuelyvon.Compilation.RegisterType.*;
+import static com.samuelyvon.BrainCramp.Compilation.RegisterType.*;
 
 
 public enum NasmRegisters implements Register {

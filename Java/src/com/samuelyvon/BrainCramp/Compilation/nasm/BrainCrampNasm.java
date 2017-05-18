@@ -1,29 +1,26 @@
-package com.samuelyvon.Compilation.nasm;
+package com.samuelyvon.BrainCramp.Compilation.nasm;
 
 import com.samuelyvon.BrainCramp.Analysis.Instruction;
 import com.samuelyvon.BrainCramp.Analysis.InstructionSet;
 import com.samuelyvon.BrainCramp.Execution.JumpTable;
 import com.samuelyvon.BrainCramp.Execution.OptimisationArgs;
-import com.samuelyvon.Compilation.Register;
+import com.samuelyvon.BrainCramp.Compilation.BrainfuckBackend;
+import com.samuelyvon.BrainCramp.Compilation.Register;
 
-import static com.samuelyvon.Compilation.nasm.NasmRegisters.*;
+import static com.samuelyvon.BrainCramp.Compilation.nasm.NasmRegisters.*;
 
-public class BrainCrampNasm {
-
-    private final String sourceCode;
-    private final String ipt;
-    private final OptimisationArgs optimise;
+public class BrainCrampNasm extends BrainfuckBackend {
 
 
     private static final String bufferVar = "buffer";
     private static final String currentValPointer = "value";
 
+
     public BrainCrampNasm(String code, String ipt, OptimisationArgs optimisationArgs) {
-        this.sourceCode = code;
-        this.ipt = ipt;
-        this.optimise = optimisationArgs;
+        super(code, ipt, optimisationArgs);
     }
 
+    @Override
     public String compile() {
 
         Segment data = new Segment("data");
@@ -52,7 +49,6 @@ public class BrainCrampNasm {
 
             switch (instruction.getCode()) {
                 case LEFT: {
-                    //TODO CHECK IF LT ZERO
                     code.addInstruction("; LEFT");
                     int leftVal = instruction.getArg().getValues()[0];
                     code.addInstruction("SUB", ESI, ",", leftVal);

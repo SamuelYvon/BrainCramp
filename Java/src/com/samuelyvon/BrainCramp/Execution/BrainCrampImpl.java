@@ -91,7 +91,7 @@ public class BrainCrampImpl {
                     break;
                 case WRITE:
                     char toPrnt = mem.readAscii();
-                    System.out.print(toPrnt);
+                    //System.out.print(toPrnt);
                     break;
                 case TRANSFER:
                     ++transfers;

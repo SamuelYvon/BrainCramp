@@ -1,4 +1,4 @@
-package com.samuelyvon.Compilation;
+package com.samuelyvon.BrainCramp.Compilation;
 
 public interface Register {
 

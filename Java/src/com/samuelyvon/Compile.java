@@ -1,21 +1,33 @@
 package com.samuelyvon;
 
+import com.samuelyvon.BrainCramp.Compilation.BrainfuckBackend;
 import com.samuelyvon.BrainCramp.Execution.OptimisationArgs;
-import com.samuelyvon.Compilation.java.BrainfuckToJava;
-import com.samuelyvon.Compilation.nasm.BrainCrampNasm;
+import com.samuelyvon.BrainCramp.Compilation.java.BrainfuckToJava;
+import com.samuelyvon.BrainCramp.Compilation.nasm.BrainCrampNasm;
 
 public class Compile {
 
-    public static String PRINT_A_AND_B = ">++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-.<++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.";
-
     public static void main(String... args) {
+
         OptimisationArgs opt = new OptimisationArgs(true);
         opt.transferArgs = false;
-        BrainCrampNasm brainCrampNasm = new BrainCrampNasm(Interpret.MANDELBROT_B, "", opt);
-        System.out.println(brainCrampNasm.compile());
 
+        if (args.length > 0) {
+            String lang = args[0];
 
-        BrainfuckToJava brainfuckToJava = new BrainfuckToJava(Interpret.MANDELBROT_B, "", opt);
-        System.out.println(brainfuckToJava.compile());
+            BrainfuckBackend backend;
+
+            if (lang.equalsIgnoreCase("java")) {
+                backend = new BrainfuckToJava(RunTests.LONG_B, "", opt);
+            } else if (lang.equalsIgnoreCase("nasm")) {
+                backend = new BrainCrampNasm(RunTests.LONG_B, "", opt);
+            } else {
+                backend = null;
+            }
+
+            if (null == backend) return;
+
+            System.out.println(backend.compile());
+        }
     }
 }

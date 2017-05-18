@@ -1,25 +1,21 @@
-package com.samuelyvon.Compilation.java;
+package com.samuelyvon.BrainCramp.Compilation.java;
 
 import com.samuelyvon.BrainCramp.Analysis.Instruction;
 import com.samuelyvon.BrainCramp.Analysis.InstructionSet;
 import com.samuelyvon.BrainCramp.Analysis.TransferArg;
-import com.samuelyvon.BrainCramp.Execution.JumpTable;
 import com.samuelyvon.BrainCramp.Execution.OptimisationArgs;
+import com.samuelyvon.BrainCramp.Compilation.BrainfuckBackend;
 
 import java.util.Objects;
 
-public class BrainfuckToJava {
-
-    private final String sourceCode;
-    private final OptimisationArgs optimise;
+public class BrainfuckToJava extends BrainfuckBackend {
 
     public BrainfuckToJava(String code, String ipt, OptimisationArgs optimisationArgs) {
+        super(code, ipt, optimisationArgs);
         assert Objects.equals("", ipt) : "MandelbrotBCompiled to java does not handle input";
-        this.sourceCode = code;
-        this.optimise = optimisationArgs;
     }
 
-
+    @Override
     public String compile() {
 
         StringBuilder sb = new StringBuilder();
