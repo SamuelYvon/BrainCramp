@@ -9,9 +9,9 @@ public class OptimisationArgs {
 
     }
 
-    public OptimisationArgs(boolean activate) {
-        compress = activate;
-        transferArgs = activate;
-        resetToZero = activate;
+    public OptimisationArgs(boolean activateAll) {
+        compress = activateAll;
+        transferArgs = activateAll;
+        resetToZero = activateAll;
     }
 }

@@ -10,7 +10,6 @@ public class Compile {
     public static void main(String... args) {
 
         OptimisationArgs opt = new OptimisationArgs(true);
-        opt.transferArgs = false;
 
         if (args.length > 0) {
             String lang = args[0];
@@ -18,9 +17,9 @@ public class Compile {
             BrainfuckBackend backend;
 
             if (lang.equalsIgnoreCase("java")) {
-                backend = new BrainfuckToJava(RunTests.LONG_B, "", opt);
+                backend = new BrainfuckToJava(RunTests.MANDELBROT_B, "", opt);
             } else if (lang.equalsIgnoreCase("nasm")) {
-                backend = new BrainCrampNasm(RunTests.LONG_B, "", opt);
+                backend = new BrainCrampNasm(RunTests.MANDELBROT_B, "", opt);
             } else {
                 backend = null;
             }
