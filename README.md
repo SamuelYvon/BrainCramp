@@ -59,3 +59,33 @@ Compiled (in NASM assembly)
 
 ### With long.b
 
+Interpretation (java)
+
+| Optimisation     | Total time in seconds | Iterations | Bytes of memory (theoritical count) |
+|------------------|-----------------------|------------|-------------------------------------|
+| None             | 137                   | 7909544265 | 55                                  |
+| All              | 19                    | 1052640766 | 55                                  |
+| Compression only | 90                    | 5587458662 | 55                                  |
+| Reset to zero    | 69                    | 4758278609 | 55                                  |
+| Transfer         | 89                    | 5419150233 | 55                                  |
+
+Compiled (java)
+
+| Optimisation     | Total time in seconds | Iterations | Bytes of memory (theoritical count) |
+|------------------|-----------------------|------------|-------------------------------------|
+| None             | 6                     | n/a        | 55                                  |
+| All              | 1                     | n/a        | 55                                  |
+| Compression only | 4                     | n/a        | 55                                  |
+| Reset to zero    | 3                     | n/a        | 55                                  |
+| Transfer         | 4                     | n/a        | 55                                  |
+
+Compiled (assembly)
+
+| Optimisation     | Total time in seconds | Iterations | Bytes of memory (theoritical count) |
+|------------------|-----------------------|------------|-------------------------------------|
+| None             | 6                     | n/a        | 55                                  |
+| All              | 0.6                   | n/a        | 55                                  |
+| Compression only | 4                     | n/a        | 55                                  |
+| Reset to zero    | 2.7                   | n/a        | 55                                  |
+| Transfer         | 4.6                   | n/a        | 55                                  |
+
