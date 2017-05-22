@@ -89,3 +89,8 @@ Compiled (assembly)
 | Reset to zero    | 2.7                   | n/a        | 55                                  |
 | Transfer         | 4.6                   | n/a        | 55                                  |
 
+### Additionals notes
+
+In the case of the java interpreted memory usage, since I use integers and not bytes the real memory usage is vastly different. It really only represents the number of bytes I would use if it wasn't an array. 
+
+In all cases, it only accounts for the number of bytes the memory "tape" would use, and it doesn't account of the pointer and all the classes used by java. I benchmarked it to see if the optimisations would make a difference, since I use a lazy memory allocation technique, I only give some when it is required, and I give an amount proportional to how much memory is missing. This is why the compression optimisation will result in more memory used, it ask for more memory in one shot since it compressed all of those operations.
