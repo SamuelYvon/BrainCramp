@@ -81,8 +81,9 @@ class NaiveInterpreter(BFInterpreter):
                     m = self._memory[mptr]
                     self._memory[mptr] = (m - 1) & 0xFF
                 case Opcode.READ:
-                    self._memory[mptr] = ord(self._stdin[input_ptr]) & 0xFF
-                    input_ptr += 1
+                    if len(self._stdin) > input_ptr:
+                        self._memory[mptr] = ord(self._stdin[input_ptr]) & 0xFF
+                        input_ptr += 1
                 case Opcode.WRITE:
                     m = self._memory[mptr]
                     c = chr(m)
