@@ -88,6 +88,10 @@ class ArithmeticInstruction(Instruction):
 
 class ReadWriteInstruction(Instruction):
 
+    def __init__(self, code: Opcode, debug: bool):
+        super().__init__(code)
+        self._debug = debug
+
     def execute(self, memory: List[int], stdin: str, output: str, *, iptr: int, memptr: int,
                 stdinptr: int) -> InstructionReturn:
         if self._code is Opcode.READ:
@@ -98,6 +102,8 @@ class ReadWriteInstruction(Instruction):
         elif self._code is Opcode.WRITE:
             for _ in range(self._repeat):
                 val = chr(memory[memptr])
+                if self._debug:
+                    print(val, end="", flush=True)
                 output += val
         else:
             raise ValueError("Incorrect Read-Write instruction")
@@ -192,9 +198,9 @@ class OptimizingInterpreterLevel1(BFInterpreter):
                 case Opcode.MINUS:
                     instructions.append(ArithmeticInstruction(code))
                 case Opcode.READ:
-                    instructions.append(ReadWriteInstruction(code))
+                    instructions.append(ReadWriteInstruction(code, self._debug))
                 case Opcode.WRITE:
-                    instructions.append(ReadWriteInstruction(code))
+                    instructions.append(ReadWriteInstruction(code, self._debug))
                 case Opcode.LOOP_START:
                     instructions.append(LoopInstruction(code))
                 case Opcode.LOOP_END:
